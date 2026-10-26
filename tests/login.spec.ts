@@ -1,26 +1,24 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
 
 const standardUser = 'standard_user';
 const lockedOutUser = 'locked_out_user';
 const password = 'secret_sauce';
 
-test('standard user can log in', async ({ page }) => {
-    await page.goto('https://www.saucedemo.com/');
-    await expect(page).toHaveTitle(/Swag Labs/);
-    await page.getByPlaceholder('Username').fill(standardUser);
-    await page.getByPlaceholder('Password').fill(password);
-    await page.getByRole('button', { name: 'Login' }).click();
-    await expect(page).toHaveURL(/inventory/);
+test.describe('Login', () => {
+    let loginPage: LoginPage;
+    test.beforeEach(async ( {page} ) => {
+        loginPage = new LoginPage(page);
+        await loginPage.goto();
+    })
 
-});
+    test('standard user can log in', async ({ page }) => {
+        await loginPage.login(standardUser, password);
+        await expect(page).toHaveURL(/inventory/)
+    })
 
-test('locked out user sees an error', async ({ page }) => {
-    await page.goto('https://www.saucedemo.com/');
-    await expect(page).toHaveTitle(/Swag Labs/);
-    await page.getByPlaceholder('Username').fill(lockedOutUser);
-    await page.getByPlaceholder("Password").fill(password);
-    await page.getByRole('button', { name: 'Login' }).click();
-    await expect(page.getByText(/locked out/)).toBeVisible();
-    await expect(page).not.toHaveURL(/inventory/);
-
-});
+    test('locked out user sees an error', async () => {
+        await loginPage.login(lockedOutUser, password);
+        await expect(loginPage.errorMessage).toContainText('locked out');
+    });
+})
