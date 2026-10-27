@@ -10,7 +10,7 @@ export class LoginPage {
     constructor(private readonly page: Page){
         this.userNameField = page.getByPlaceholder('Username');
         this.userPasswordField = page.getByPlaceholder('Password');
-        this.loginButton = page.getByRole('button', { name: 'Login' })
+        this.loginButton = page.getByRole('button', { name: 'Login' });
         this.errorMessage = page.getByTestId('error');
     }
 
@@ -20,7 +20,7 @@ export class LoginPage {
         await expect(this.loginButton).toBeVisible();
     }
 
-    async login(username: string, password: string) {
+    async login(username: string, password: string): Promise<void> {
         await this.userNameField.fill(username);
         await this.userPasswordField.fill(password);
         await this.loginButton.click();
